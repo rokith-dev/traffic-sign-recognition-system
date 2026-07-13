@@ -1,6 +1,6 @@
 import os
 import cv2
-
+from preprocess import preprocess_image
 # ==========================================================
 # Dataset Path
 # ==========================================================
@@ -50,9 +50,11 @@ for class_name in class_folders:
 
         image = cv2.imread(image_path)
 
-        # Skip corrupted images
         if image is None:
-            continue
+                continue
+
+# Preprocess the image
+        image = preprocess_image(image)
 
         images.append(image)
         labels.append(int(class_name))
