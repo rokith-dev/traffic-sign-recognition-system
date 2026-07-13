@@ -1,5 +1,9 @@
 numpy
 pandas
 matplotlib
-scikit-learn
 opencv-python
+scikit-learn
+tensorflow
+streamlit
+jupyter
+seaborn
