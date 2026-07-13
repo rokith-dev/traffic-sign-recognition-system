@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 
 # Import processed dataset
-from dataset_loader import images, labels
+from src.preprocessing.dataset_loader import images, labels
 
 print("=" * 50)
 print("Preparing Dataset")

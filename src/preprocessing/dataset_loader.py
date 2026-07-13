@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from preprocess import preprocess_image
+from src.preprocessing.preprocess import preprocess_image
 
 # ==========================================================
 # Dataset Path
@@ -112,8 +112,11 @@ print("Channels :", images[0].shape[2])
 # Display First Image
 # ==========================================================
 
-cv2.imshow("First Traffic Sign", cv2.cvtColor((images[0] * 255).astype("uint8"), cv2.COLOR_RGB2BGR))
+if __name__ == "__main__":
+    cv2.imshow(
+        "First Traffic Sign",
+        cv2.cvtColor((images[0] * 255).astype("uint8"), cv2.COLOR_RGB2BGR)
+    )
 
-cv2.waitKey(0)
-
-cv2.destroyAllWindows()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

@@ -1,7 +1,14 @@
+import os
+import sys
+
 from tensorflow.keras.optimizers import Adam
 
-from cnn_model import build_cnn_model
+# Add project root to Python path
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+sys.path.append(PROJECT_ROOT)
+
 from src.preprocessing.prepare_data import get_data
+from src.training.cnn_model import build_cnn_model
 
 # ==========================================
 # Load Dataset
@@ -10,7 +17,7 @@ from src.preprocessing.prepare_data import get_data
 X_train, X_test, y_train, y_test = get_data()
 
 # ==========================================
-# Build CNN
+# Build Model
 # ==========================================
 
 NUM_CLASSES = 58
@@ -47,9 +54,18 @@ history = model.fit(
 )
 
 # ==========================================
+# Create Models Folder
+# ==========================================
+
+os.makedirs("models", exist_ok=True)
+
+# ==========================================
 # Save Model
 # ==========================================
 
 model.save("models/traffic_sign_cnn.keras")
 
-print("\n✅ Model saved successfully!")
+print("\n==========================================")
+print("Model Trained Successfully!")
+print("Model Saved: models/traffic_sign_cnn.keras")
+print("==========================================")
