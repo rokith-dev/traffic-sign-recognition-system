@@ -1,11 +1,11 @@
 from sklearn.model_selection import train_test_split
-
 from dataset_loader import images, labels
 
 print("=" * 50)
 print("Train Test Split")
 print("=" * 50)
 
+# Split the dataset
 X_train, X_test, y_train, y_test = train_test_split(
     images,
     labels,
@@ -14,6 +14,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=labels
 )
 
+# Print information
 print("Training Images :", X_train.shape)
 print("Testing Images  :", X_test.shape)
 
