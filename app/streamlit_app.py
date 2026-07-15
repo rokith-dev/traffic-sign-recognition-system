@@ -1,23 +1,30 @@
 import os
 import sys
-import cv2
-import numpy as np
+import tempfile
+
+# =====================================================
+# Add Project Root to Python Path
+# =====================================================
+
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..")
+)
+
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
+# =====================================================
+# Imports
+# =====================================================
+
 import streamlit as st
-from tensorflow.keras.models import load_model
+from PIL import Image
 
-# ======================================================
-# Project Path
-# ======================================================
+from src.prediction.predictor import TrafficSignPredictor
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(PROJECT_ROOT)
-
-from src.preprocessing.preprocess import preprocess_image
-from src.utils.class_names import CLASS_NAMES
-
-# ======================================================
+# =====================================================
 # Page Configuration
-# ======================================================
+# =====================================================
 
 st.set_page_config(
     page_title="AI Traffic Sign Recognition",
@@ -25,99 +32,78 @@ st.set_page_config(
     layout="wide"
 )
 
-# ======================================================
-# Sidebar
-# ======================================================
-
-st.sidebar.title("🚦 Project Information")
-
-st.sidebar.success("Model Loaded Successfully")
-
-st.sidebar.markdown("### Model Details")
-
-st.sidebar.write("**Model:** Custom CNN")
-
-st.sidebar.write("**Dataset:** 4145 Images")
-
-st.sidebar.write("**Classes:** 58")
-
-st.sidebar.write("**Accuracy:** 91.56%")
-
-st.sidebar.markdown("---")
-
-st.sidebar.write("Developed by")
-
-st.sidebar.write("**Rokith**")
-
-# ======================================================
-# Load Model
-# ======================================================
-
-model = load_model("models/traffic_sign_cnn.keras")
-
-# ======================================================
-# Main Title
-# ======================================================
+# =====================================================
+# Title
+# =====================================================
 
 st.title("🚦 AI-Powered Traffic Sign Recognition System")
 
 st.write(
-    "Upload a traffic sign image and let the AI predict the traffic sign."
+    "Upload a traffic sign image and let MobileNetV2 classify it."
 )
 
 st.divider()
 
-# ======================================================
+# =====================================================
+# Load Predictor
+# =====================================================
+
+predictor = TrafficSignPredictor()
+
+# =====================================================
 # Upload Image
-# ======================================================
+# =====================================================
 
 uploaded_file = st.file_uploader(
-    "Upload Traffic Sign Image",
+    "Choose a Traffic Sign Image",
     type=["png", "jpg", "jpeg"]
 )
 
+# =====================================================
+# Prediction
+# =====================================================
+
 if uploaded_file is not None:
 
-    file_bytes = np.asarray(
-        bytearray(uploaded_file.read()),
-        dtype=np.uint8
-    )
+    image = Image.open(uploaded_file)
 
-    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    col1, col2 = st.columns(2)
 
-    st.image(
-        cv2.cvtColor(image, cv2.COLOR_BGR2RGB),
-        caption="Uploaded Image",
-        use_container_width=True
-    )
+    with col1:
 
-    if st.button("🚀 Predict"):
+        st.subheader("Uploaded Image")
 
-        processed = preprocess_image(image)
-
-        processed = np.expand_dims(processed, axis=0)
-
-        prediction = model.predict(processed)
-
-        predicted_class = np.argmax(prediction)
-
-        confidence = float(np.max(prediction) * 100)
-
-        sign_name = CLASS_NAMES[predicted_class]
-
-        st.divider()
-
-        st.subheader("Prediction Result")
-
-        st.success(f"🚸 Traffic Sign : {sign_name}")
-
-        st.metric(
-            label="Prediction Confidence",
-            value=f"{confidence:.2f}%"
+        st.image(
+            image,
+            use_container_width=True
         )
 
-        st.progress(confidence / 100)
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".png"
+    ) as temp:
 
-        st.info(
-            "The prediction is generated using the trained CNN model."
+        image.save(temp.name)
+
+        result = predictor.predict(temp.name)
+
+    with col2:
+
+        st.subheader("Prediction")
+
+        st.success(result["class_name"])
+
+        st.metric(
+            "Confidence",
+            f"{result['confidence']:.2f}%"
+        )
+
+        st.metric(
+            "Inference Time",
+            f"{result['inference_time']:.3f} sec"
+        )
+
+        st.metric(
+            "Class ID",
+            result["class_id"]
         )
