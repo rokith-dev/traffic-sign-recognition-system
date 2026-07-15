@@ -4,7 +4,7 @@
 
 DATASET_PATH = "data/raw/traffic_Data/DATA"
 
-IMAGE_SIZE = (32, 32)
+IMAGE_SIZE = (224, 224)
 
 NUM_CHANNELS = 3
 
