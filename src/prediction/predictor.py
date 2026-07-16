@@ -47,25 +47,31 @@ class TrafficSignPredictor:
 
         end_time = time.time()
 
+        prediction = prediction[0]
+
         predicted_class = np.argmax(prediction)
 
-        confidence = np.max(prediction) * 100
+        confidence = prediction[predicted_class] * 100
+
+        # Top 5 Predictions
+        top5_indices = np.argsort(prediction)[::-1][:5]
+
+        top5 = []
+
+        for idx in top5_indices:
+
+            top5.append({
+                "class_id": int(idx),
+                "class_name": CLASS_NAMES.get(idx, "Unknown"),
+                "confidence": float(prediction[idx] * 100)
+            })
 
         inference_time = end_time - start_time
 
         return {
-
             "class_id": predicted_class,
-
-            "class_name": CLASS_NAMES.get(
-                predicted_class,
-                "Unknown"
-            ),
-
+            "class_name": CLASS_NAMES.get(predicted_class, "Unknown"),
             "confidence": confidence,
-
-            "prediction_vector": prediction[0],
-
+            "top5": top5,
             "inference_time": inference_time
-
         }
